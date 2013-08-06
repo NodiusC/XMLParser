@@ -17,7 +17,7 @@
 
 package com.nodinchan.xmlparser;
 
-public final class XMLAttribute {
+public class XMLAttribute {
 	
 	private final String name;
 	private final String value;

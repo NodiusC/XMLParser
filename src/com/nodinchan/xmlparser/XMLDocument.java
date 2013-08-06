@@ -17,12 +17,10 @@
 
 package com.nodinchan.xmlparser;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-public final class XMLDocument {
+public final class XMLDocument extends XMLSection {
 	
 	private final String encoding;
 	private final String version;
@@ -30,14 +28,12 @@ public final class XMLDocument {
 	
 	private final boolean standalone;
 	
-	private final Map<String, XMLObject> elements;
-	
 	public XMLDocument(String encoding, String version, String systemId, boolean standalone) {
+		super("xml");
 		this.encoding = encoding;
 		this.version = version;
 		this.systemId = systemId;
 		this.standalone = standalone;
-		this.elements = new LinkedHashMap<String, XMLObject>();
 	}
 	
 	public XMLDocument(String encoding, String version, String systemId) {
@@ -56,19 +52,17 @@ public final class XMLDocument {
 		this("UTF-8", "1.0", "", false);
 	}
 	
-	public void addElement(XMLObject element) {
-		if (element == null || hasElement(element.getName()))
-			return;
-		
-		this.elements.put(element.getName(), element);
+	@Override
+	public void addAttribute(XMLAttribute attribute) {}
+	
+	@Override
+	public XMLAttribute getAttribute(String name) {
+		return null;
 	}
 	
-	public XMLObject getElement(String name) {
-		return (name != null) ? elements.get(name) : null;
-	}
-	
-	public List<XMLObject> getElements() {
-		return new LinkedList<XMLObject>(elements.values());
+	@Override
+	public List<XMLAttribute> getAttributes() {
+		return new LinkedList<XMLAttribute>();
 	}
 	
 	public String getEncoding() {
@@ -79,22 +73,24 @@ public final class XMLDocument {
 		return systemId;
 	}
 	
+	@Override
+	public XMLType getType() {
+		return XMLType.DOCUMENT;
+	}
+	
 	public String getVersion() {
 		return version;
 	}
 	
-	public boolean hasElement(String name) {
-		return (name != null) ? elements.containsKey(name) : false;
+	@Override
+	public boolean hasAttribute(String name) {
+		return false;
 	}
 	
 	public boolean isStandalone() {
 		return standalone;
 	}
 	
-	public void removeElement(String name) {
-		if (name == null || !hasElement(name))
-			return;
-		
-		this.elements.remove(name);
-	}
+	@Override
+	public void removeAttribute(String name) {}
 }

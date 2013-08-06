@@ -22,11 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public final class XMLItem extends XMLObject {
+public class XMLSection extends XMLObject {
 	
 	private final Map<String, XMLObject> elements;
 	
-	public XMLItem(String name) {
+	public XMLSection(String name) {
 		super(name);
 		this.elements = new LinkedHashMap<String, XMLObject>();
 	}
@@ -48,7 +48,7 @@ public final class XMLItem extends XMLObject {
 	
 	@Override
 	public XMLType getType() {
-		return XMLType.ITEM;
+		return XMLType.SECTION;
 	}
 	
 	public boolean hasElement(String name) {

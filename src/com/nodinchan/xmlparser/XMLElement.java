@@ -17,7 +17,7 @@
 
 package com.nodinchan.xmlparser;
 
-public final class XMLElement extends XMLObject {
+public class XMLElement extends XMLObject {
 	
 	private String value;
 	

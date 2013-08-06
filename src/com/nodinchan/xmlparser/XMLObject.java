@@ -67,5 +67,5 @@ public abstract class XMLObject {
 		this.attributes.remove(name);
 	}
 	
-	public enum XMLType { ELEMENT, ITEM, UNKNOWN }
+	public enum XMLType { DOCUMENT, ELEMENT, SECTION, UNKNOWN }
 }
