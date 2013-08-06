@@ -82,6 +82,24 @@ public final class XMLDocument extends XMLSection {
 		return version;
 	}
 	
+	public List<XMLObject> getXMLObjects(String name) {
+		return getXMLObjects(this, name);
+	}
+	
+	private List<XMLObject> getXMLObjects(XMLSection section, String name) {
+		List<XMLObject> objects = new LinkedList<XMLObject>();
+		
+		for (XMLObject object : section.getElements()) {
+			if (object.getName().equals(name))
+				objects.add(object);
+			
+			if (object.getType().equals(XMLType.SECTION))
+				objects.addAll(getXMLObjects((XMLSection) object, name));
+		}
+		
+		return objects;
+	}
+	
 	@Override
 	public boolean hasAttribute(String name) {
 		return false;

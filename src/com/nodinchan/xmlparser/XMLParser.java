@@ -79,15 +79,13 @@ public final class XMLParser {
 					StringBuilder characters = new StringBuilder();
 					
 					while (reader.hasNext()) {
-						XMLEvent afterCharacters = reader.peek();
+						next = reader.peek();
 						
-						if (!afterCharacters.isCharacters())
+						if (!next.isCharacters())
 							break;
 						
 						characters.append(reader.nextEvent().asCharacters().getData());
 					}
-					
-					next = reader.peek();
 					
 					if (next.isEndElement()) {
 						XMLElement element = new XMLElement(startElement.getName().getLocalPart());
