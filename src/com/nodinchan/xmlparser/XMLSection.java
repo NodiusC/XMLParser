@@ -17,33 +17,45 @@
 
 package com.nodinchan.xmlparser;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class XMLSection extends XMLObject {
 	
-	private final Map<String, XMLObject> elements;
+	private final List<XMLObject> elements;
 	
 	public XMLSection(String name) {
 		super(name);
-		this.elements = new LinkedHashMap<String, XMLObject>();
+		this.elements = new LinkedList<XMLObject>();
 	}
 	
 	public void addElement(XMLObject element) {
-		if (element == null || hasElement(element.getName()))
+		if (element == null)
 			return;
 		
-		this.elements.put(element.getName(), element);
+		this.elements.add(element);
 	}
 	
-	public XMLObject getElement(String name) {
-		return (name != null) ? elements.get(name) : null;
+	public List<XMLObject> getElements(String name) {
+		return getElements(this, name);
+	}
+	
+	private List<XMLObject> getElements(XMLSection section, String name) {
+		List<XMLObject> objects = new LinkedList<XMLObject>();
+		
+		for (XMLObject object : section.getElements()) {
+			if (object.getName().equals(name))
+				objects.add(object);
+			
+			if (object.getType().equals(XMLType.SECTION))
+				objects.addAll(getElements((XMLSection) object, name));
+		}
+		
+		return objects;
 	}
 	
 	public List<XMLObject> getElements() {
-		return new LinkedList<XMLObject>(elements.values());
+		return new LinkedList<XMLObject>(elements);
 	}
 	
 	@Override
@@ -51,14 +63,10 @@ public class XMLSection extends XMLObject {
 		return XMLType.SECTION;
 	}
 	
-	public boolean hasElement(String name) {
-		return (name != null) ? elements.containsKey(name) : false;
-	}
-	
-	public void removeElement(String name) {
-		if (name == null || !hasElement(name))
+	public void removeElement(XMLObject element) {
+		if (element == null)
 			return;
 		
-		this.elements.remove(name);
+		this.elements.remove(element);
 	}
 }

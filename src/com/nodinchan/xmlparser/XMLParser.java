@@ -50,74 +50,79 @@ public final class XMLParser {
 				boolean standalone = startDoc.isStandalone();
 				
 				document = new XMLDocument(encoding, version, systemId, standalone);
-				reader.next();
+				firstEvent = reader.nextEvent();
 			}
 			
-			parse(document, reader);
+			parse(document, reader, firstEvent);
 			
 		} catch (Exception e) {}
 		
 		return document;
 	}
 	
-	private static void parse(XMLSection parent, XMLEventReader reader) throws XMLStreamException {
+	private static void parse(XMLSection parent, XMLEventReader reader, XMLEvent last) throws XMLStreamException {
+		XMLEvent previous = last;
+		
 		while (reader.hasNext()) {
-			XMLEvent peek = reader.peek();
+			XMLEvent event = reader.nextEvent();
 			
-			if (peek.isEndDocument())
+			if (event.isEndElement() && previous.isEndElement())
 				return;
 			
-			XMLEvent event = reader.nextEvent();
+			if (!event.isStartElement())
+				continue;
+			
 			XMLEvent next = reader.peek();
 			
-			if (event.isStartElement()) {
-				StartElement startElement = event.asStartElement();
-				
-				XMLObject object = null;
-				
-				if (next.isCharacters()) {
-					StringBuilder characters = new StringBuilder();
+			StartElement startElement = event.asStartElement();
+			
+			XMLObject object = null;
+			
+			StringBuilder characters = new StringBuilder();
+			
+			if (next.isCharacters()) {
+				while (reader.hasNext()) {
+					if (!next.isCharacters())
+						break;
 					
-					while (reader.hasNext()) {
-						next = reader.peek();
-						
-						if (!next.isCharacters())
-							break;
-						
-						characters.append(reader.nextEvent().asCharacters().getData());
-					}
-					
-					if (next.isEndElement()) {
-						XMLElement element = new XMLElement(startElement.getName().getLocalPart());
-						object = element;
-						
-						element.setValue(characters.toString());
-						parent.addElement(element);
-					}
-				}
-				
-				if (next.isStartElement()) {
-					XMLSection section = new XMLSection(startElement.getName().getLocalPart());
-					object = section;
-					
-					parse(section, reader);
-					parent.addElement(section);
-				}
-				
-				if (object == null)
-					continue;
-				
-				Iterator<?> attributes = startElement.getAttributes();
-				
-				while (attributes.hasNext()) {
-					Attribute attribute = (Attribute) attributes.next();
-					
-					String name = attribute.getName().getLocalPart();
-					String value = attribute.getValue();
-					
-					object.addAttribute(new XMLAttribute(name, value));
+					characters.append(reader.nextEvent().asCharacters().getData());
+					next = reader.peek();
 				}
 			}
+			
+			switch (next.getEventType()) {
+			
+			case XMLEvent.END_ELEMENT:
+				XMLElement element = new XMLElement(startElement.getName().getLocalPart());
+				element.setValue(characters.toString());
+				
+				object = element;
+				previous = reader.nextEvent();
+				break;
+				
+			case XMLEvent.START_ELEMENT:
+				XMLSection section = new XMLSection(startElement.getName().getLocalPart());
+				parse(section, reader, previous);
+				
+				object = section;
+				break;
+			}
+			
+			if (object == null)
+				continue;
+			
+			Iterator<?> attributes = startElement.getAttributes();
+			
+			while (attributes.hasNext()) {
+				Attribute attribute = (Attribute) attributes.next();
+				
+				String name = attribute.getName().getLocalPart();
+				String value = attribute.getValue();
+				
+				object.addAttribute(new XMLAttribute(name, value));
+			}
+			
+			parent.addElement(object);
 		}
 	}
 }
