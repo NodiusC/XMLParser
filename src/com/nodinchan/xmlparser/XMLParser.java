@@ -54,6 +54,7 @@ public final class XMLParser {
 			}
 			
 			parse(document, reader);
+			reader.close();
 			
 		} catch (Exception e) {}
 		
