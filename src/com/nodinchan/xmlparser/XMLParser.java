@@ -28,7 +28,83 @@ import javax.xml.stream.events.StartDocument;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.nodinchan.xmlparser.XMLObject.XMLType;
+
 public final class XMLParser {
+	
+	public static String convert(XMLDocument document) {
+		if (document == null)
+			throw new IllegalArgumentException();
+		
+		StringBuilder xml = new StringBuilder();
+		
+		String encoding = document.getEncoding();
+		String version = document.getVersion();
+		String standalone = (document.isStandalone()) ? "yes" : "no";
+		
+		xml.append("<?xml");
+		xml.append(" version=\"" + version + "\"");
+		xml.append(" encoding=\"" + encoding + "\"");
+		xml.append(" standalone=\"" + standalone + "\"");
+		xml.append("?>\n");
+		
+		convert(xml, document, 0);
+		
+		return xml.toString();
+	}
+	
+	private static void convert(StringBuilder xml, XMLSection parent, int layer) {
+		if (xml == null || parent == null || layer < 0)
+			throw new IllegalArgumentException();
+		
+		XMLType previous = XMLType.UNKNOWN;
+		
+		for (XMLObject object : parent.getElements()) {
+			switch (object.getType()) {
+			
+			case ELEMENT:
+				if (previous.equals(XMLType.SECTION))
+					xml.append('\n');
+				
+				for (int time = 1; time <= layer; time++)
+					xml.append("    ");
+				
+				xml.append("<" + object.getName());
+				
+				for (XMLAttribute attribute : object.getAttributes())
+					xml.append(" " + attribute.getName() + "=\"" + attribute.getValue() + "\"");
+				
+				xml.append(">");
+				xml.append(((XMLElement) object).getValue());
+				xml.append("</" + object.getName() + ">\n");
+				break;
+				
+			case SECTION:
+				if (previous.equals(XMLType.ELEMENT))
+					xml.append('\n');
+				
+				for (int time = 1; time <= layer; time++)
+					xml.append("    ");
+				
+				xml.append("<" + object.getName());
+				
+				for (XMLAttribute attribute : object.getAttributes())
+					xml.append(" " + attribute.getName() + "=\"" + attribute.getValue() + "\"");
+				
+				xml.append(">");
+				
+				convert(xml, (XMLSection) object, layer + 1);
+				
+				xml.append("</" + object.getName() + ">\n");
+				break;
+				
+			default:
+				continue;
+			}
+			
+			previous = object.getType();
+		}
+	}
 	
 	public static XMLDocument parse(InputStream inputStream) {
 		XMLDocument document = new XMLDocument();
