@@ -15,24 +15,20 @@
  *     along with this program.  If not, see {http://www.gnu.org/licenses/}.
  */
 
-package com.nodinchan.xmlparser;
+package com.nodinchan.parser.xml;
 
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartDocument;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.events.*;
 
-import com.nodinchan.xmlparser.XMLObject.XMLType;
-
-public final class XMLParser {
+public class XMLParser {
 	
-	public static String convert(XMLDocument document) {
+	public static String compose(XMLDocument document) {
 		if (document == null)
 			throw new IllegalArgumentException();
 		
@@ -48,69 +44,53 @@ public final class XMLParser {
 		xml.append(" standalone=\"" + standalone + "\"");
 		xml.append("?>\n");
 		
-		convert(xml, document, 0);
-		
-		return xml.toString();
+		compose(xml, document, 0);
+		return xml.toString().trim();
 	}
 	
-	private static void convert(StringBuilder xml, XMLSection parent, int layer) {
-		if (xml == null || parent == null || layer < 0)
-			throw new IllegalArgumentException();
+	private static void compose(StringBuilder xml, XMLElement parent, int layer) {
+		int type = -1;
 		
-		XMLType previous = XMLType.UNKNOWN;
-		
-		for (XMLObject object : parent.getElements()) {
-			switch (object.getType()) {
+		for (XMLElement element : parent.getElements()) {
+			boolean node = element.getElements().size() < 1;
 			
-			case ELEMENT:
-				if (previous.equals(XMLType.SECTION))
-					xml.append('\n');
-				
-				for (int time = 1; time <= layer; time++)
+			if ((type == 0 && node) || (type == 1 && !node))
+				xml.append("\n");
+			
+			type = (node) ? 1 : 0;
+			
+			for (int indent = 0; indent < layer; indent++)
+				xml.append("    ");
+			
+			xml.append("<" + element.getName());
+			
+			for (Entry<String, String> attribute : element.getAttributes())
+				xml.append(' ' + attribute.getKey() + "=\"" + attribute.getValue() + "\"");
+			
+			xml.append(">" + ((!node) ? "\n" : ""));
+			
+			if (node)
+				xml.append((element.getValue() != null) ? element.getValue() : "");
+			else
+				compose(xml, element, layer + 1);
+			
+			if (!node) {
+				for (int indent = 0; indent < layer; indent++)
 					xml.append("    ");
-				
-				xml.append("<" + object.getName());
-				
-				for (XMLAttribute attribute : object.getAttributes())
-					xml.append(" " + attribute.getName() + "=\"" + attribute.getValue() + "\"");
-				
-				xml.append(">");
-				xml.append(((XMLElement) object).getValue());
-				xml.append("</" + object.getName() + ">\n");
-				break;
-				
-			case SECTION:
-				if (previous.equals(XMLType.ELEMENT))
-					xml.append('\n');
-				
-				for (int time = 1; time <= layer; time++)
-					xml.append("    ");
-				
-				xml.append("<" + object.getName());
-				
-				for (XMLAttribute attribute : object.getAttributes())
-					xml.append(" " + attribute.getName() + "=\"" + attribute.getValue() + "\"");
-				
-				xml.append(">");
-				
-				convert(xml, (XMLSection) object, layer + 1);
-				
-				xml.append("</" + object.getName() + ">\n");
-				break;
-				
-			default:
-				continue;
 			}
 			
-			previous = object.getType();
+			xml.append("</" + element.getName() + ">\n");
 		}
 	}
 	
-	public static XMLDocument parse(InputStream inputStream) {
+	public static XMLDocument parse(InputStream stream) {
+		if (stream == null)
+			throw new IllegalArgumentException();
+		
 		XMLDocument document = new XMLDocument();
 		
 		try {
-			XMLEventReader reader = XMLInputFactory.newFactory().createXMLEventReader(inputStream);
+			XMLEventReader reader = XMLInputFactory.newFactory().createXMLEventReader(stream);
 			
 			if (!reader.hasNext())
 				return document;
@@ -137,7 +117,7 @@ public final class XMLParser {
 		return document;
 	}
 	
-	private static void parse(XMLSection parent, XMLEventReader reader) throws XMLStreamException {
+	private static void parse(XMLElement parent, XMLEventReader reader) throws XMLStreamException {
 		XMLEvent previous = null;
 		XMLEvent event = null;
 		XMLEvent next = null;
@@ -155,9 +135,6 @@ public final class XMLParser {
 				break;
 				
 			case XMLEvent.START_ELEMENT:
-				XMLObject object = null;
-				
-				StartElement startElement = event.asStartElement();
 				StringBuilder characters = new StringBuilder();
 				
 				if (next.isCharacters()) {
@@ -170,38 +147,36 @@ public final class XMLParser {
 					}
 				}
 				
+				StartElement startElement = event.asStartElement();
+				
+				XMLElement element = new XMLElement(startElement.getName().getLocalPart());
+				
 				switch (next.getEventType()) {
 				
 				case XMLEvent.END_ELEMENT:
-					XMLElement element = new XMLElement(startElement.getName().getLocalPart());
 					element.setValue(characters.toString());
-					
-					object = element;
 					break;
 					
 				case XMLEvent.START_ELEMENT:
-					XMLSection section = new XMLSection(startElement.getName().getLocalPart());
-					parse(section, reader);
+					parse(element, reader);
+					break;
 					
-					object = section;
+				default:
+					element = null;
 					break;
 				}
 				
-				if (object == null)
+				if (element == null)
 					break;
 				
 				Iterator<?> attributes = startElement.getAttributes();
 				
 				while (attributes.hasNext()) {
 					Attribute attribute = (Attribute) attributes.next();
-					
-					String name = attribute.getName().getLocalPart();
-					String value = attribute.getValue();
-					
-					object.addAttribute(new XMLAttribute(name, value));
+					element.addAttribute(attribute.getName().getLocalPart(), attribute.getValue());
 				}
 				
-				parent.addElement(object);
+				parent.addElement(element);
 				break;
 				
 			default:

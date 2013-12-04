@@ -15,19 +15,19 @@
  *     along with this program.  If not, see {http://www.gnu.org/licenses/}.
  */
 
-package com.nodinchan.xmlparser;
+package com.nodinchan.parser.xml;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
-public final class XMLDocument extends XMLSection {
+public final class XMLDocument extends XMLElement {
 	
 	private final String encoding;
 	private final String version;
 	private final String systemId;
 	
 	private final boolean standalone;
-	
 	public XMLDocument(String encoding, String version, String systemId, boolean standalone) {
 		super("xml");
 		this.encoding = encoding;
@@ -52,17 +52,20 @@ public final class XMLDocument extends XMLSection {
 		this("UTF-8", "1.0", "", false);
 	}
 	
+	@Deprecated
 	@Override
-	public void addAttribute(XMLAttribute attribute) {}
+	public void addAttribute(String name, String value) {}
 	
+	@Deprecated
 	@Override
-	public XMLAttribute getAttribute(String name) {
+	public String getAttribute(String name) {
 		return null;
 	}
 	
+	@Deprecated
 	@Override
-	public List<XMLAttribute> getAttributes() {
-		return new LinkedList<XMLAttribute>();
+	public List<Entry<String, String>> getAttributes() {
+		return new LinkedList<Entry<String, String>>();
 	}
 	
 	public String getEncoding() {
@@ -73,15 +76,23 @@ public final class XMLDocument extends XMLSection {
 		return systemId;
 	}
 	
+	@Deprecated
 	@Override
-	public XMLType getType() {
-		return XMLType.DOCUMENT;
+	public XMLElement getParent() {
+		return null;
+	}
+	
+	@Deprecated
+	@Override
+	public String getValue() {
+		return null;
 	}
 	
 	public String getVersion() {
 		return version;
 	}
 	
+	@Deprecated
 	@Override
 	public boolean hasAttribute(String name) {
 		return false;
@@ -91,6 +102,15 @@ public final class XMLDocument extends XMLSection {
 		return standalone;
 	}
 	
+	@Deprecated
 	@Override
 	public void removeAttribute(String name) {}
+	
+	@Deprecated
+	@Override
+	public void setParent(XMLElement parent) {}
+	
+	@Deprecated
+	@Override
+	public void setValue(String value) {}
 }
