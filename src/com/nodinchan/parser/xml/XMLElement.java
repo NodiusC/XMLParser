@@ -17,8 +17,8 @@
 
 package com.nodinchan.parser.xml;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.LinkedList;
+import java.util.List;
 
 public class XMLElement {
 	
@@ -28,36 +28,61 @@ public class XMLElement {
 	
 	private XMLElement parent;
 	
-	private final List<XMLElement> elements;
-	
-	private final Map<String, String> attributes;
+	private final LinkedList<XMLAttribute> attributes;
+	private final LinkedList<XMLElement> elements;
 	
 	public XMLElement(String name) {
 		this.name = name;
+		this.attributes = new LinkedList<XMLAttribute>();
 		this.elements = new LinkedList<XMLElement>();
-		this.attributes = new LinkedHashMap<String, String>();
 	}
 	
-	public void addAttribute(String name, String value) {
-		if (name == null || name.isEmpty() || hasAttribute(name) || value == null)
-			return;
+	public XMLElement appendAttribute(XMLAttribute attribute) {
+		return insertAttribute(attribute, this.attributes.size());
+	}
+	
+	public XMLElement appendAttribute(String name, String value) {
+		return appendAttribute(new XMLAttribute(name, value));
+	}
+	
+	public XMLElement appendAttributeAfter(XMLAttribute attribute, String relative) {
+		if (!hasAttribute(relative))
+			throw new IllegalArgumentException("Relative attribute not found");
 		
-		this.attributes.put(name, value);
+		return insertAttribute(attribute, this.attributes.indexOf(getAttribute(relative)) + 1);
 	}
 	
-	public void addElement(XMLElement element) {
-		if (element == null)
-			return;
+	public XMLElement appendAttributeAfter(String name, String value, String relative) {
+		return appendAttributeAfter(new XMLAttribute(name, value), relative);
+	}
+	
+	public XMLElement appendElement(XMLElement element) {
+		return insertElement(element, this.elements.size());
+	}
+	
+	public XMLElement appendElementAfter(XMLElement element, XMLElement relative) {
+		if (!this.elements.contains(relative))
+			throw new IllegalArgumentException("Relative element not found");
 		
-		element.setParent(this);
+		return insertElement(element, this.elements.indexOf(relative) + 1);
 	}
 	
-	public String getAttribute(String name) {
-		return (hasAttribute(name)) ? attributes.get(name) : null;
+	public XMLAttribute getAttribute(String name) {
+		if (name == null || name.isEmpty())
+			throw new IllegalArgumentException("Name cannot be empty");
+		
+		for (XMLAttribute attribute : getAttributes()) {
+			if (!attribute.getName().equals(name))
+				continue;
+			
+			return attribute;
+		}
+		
+		return null;
 	}
 	
-	public List<Entry<String, String>> getAttributes() {
-		return new LinkedList<Entry<String, String>>(attributes.entrySet());
+	public List<XMLAttribute> getAttributes() {
+		return new LinkedList<XMLAttribute>(attributes);
 	}
 	
 	public List<XMLElement> getElements() {
@@ -65,8 +90,11 @@ public class XMLElement {
 	}
 	
 	public static List<XMLElement> getElementsByName(XMLElement element, String name) {
-		if (element == null || name == null || name.isEmpty())
-			return new LinkedList<XMLElement>();
+		if (element == null)
+			throw new IllegalArgumentException("Element cannot be null");
+		
+		if (name == null || name.isEmpty())
+			throw new IllegalArgumentException("Name cannot be empty");
 		
 		List<XMLElement> elements = new LinkedList<XMLElement>();
 		
@@ -85,8 +113,11 @@ public class XMLElement {
 	}
 	
 	public static List<XMLElement> getElementsByValue(XMLElement element, String value) {
-		if (element == null || value == null)
-			return new LinkedList<XMLElement>();
+		if (element == null)
+			throw new IllegalArgumentException("Element cannot be null");
+		
+		if (value == null)
+			throw new IllegalArgumentException("Value cannot be null");
 		
 		List<XMLElement> elements = new LinkedList<XMLElement>();
 		
@@ -120,41 +151,150 @@ public class XMLElement {
 	}
 	
 	public boolean hasAttribute(String name) {
-		return (name != null && !name.isEmpty()) ? this.attributes.containsKey(name) : false;
+		if (name == null || name.isEmpty())
+			throw new IllegalArgumentException("Name cannot be empty");
+		
+		for (XMLAttribute attribute : getAttributes()) {
+			if (!attribute.getName().equals(name))
+				continue;
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public XMLElement insertAttribute(XMLAttribute attribute, int position) {
+		if (attribute == null)
+			throw new IllegalArgumentException("Attribute cannot be null");
+		
+		if (position < 0 || position > this.attributes.size())
+			throw new IllegalArgumentException("Position cannot be beyond 0 to " + this.attributes.size());
+		
+		this.attributes.add(position, attribute);
+		return this;
+	}
+	
+	public XMLElement insertAttribute(String name, String value, int position) {
+		return insertAttribute(new XMLAttribute(name, value), position);
+	}
+	
+	public XMLElement insertElement(XMLElement element, int position) {
+		if (element == null)
+			throw new IllegalArgumentException("Element cannot be null");
+		
+		if (position < 0 || position > this.elements.size())
+			throw new IllegalArgumentException("Position cannot be beyond 0 to " + this.elements.size());
+		
+		if (element.parent != null)
+			element.parent.elements.remove(element);
+		
+		if (element.parent != this)
+			element.parent = this;
+		
+		this.elements.add(position, element);
+		return this;
 	}
 	
 	public boolean isNode() {
-		return elements.size() < 1;
+		return this.elements.size() < 1;
 	}
 	
-	public void removeAttribute(String name) {
-		if (name == null || name.isEmpty() || !hasAttribute(name))
-			return;
+	public XMLElement prependAttribute(XMLAttribute attribute) {
+		return insertAttribute(attribute, 0);
+	}
+	
+	public XMLElement prependAttribute(String name, String value) {
+		return prependAttribute(new XMLAttribute(name, value));
+	}
+	
+	public XMLElement prependAttributeBefore(XMLAttribute attribute, String relative) {
+		if (!hasAttribute(relative))
+			throw new IllegalArgumentException("Relative attribute not found");
 		
-		this.attributes.remove(name);
+		return insertAttribute(attribute, this.attributes.indexOf(getAttribute(relative)));
 	}
 	
-	public void removeElement(XMLElement element) {
+	public XMLElement prependAttributeBefore(String name, String value, String relative) {
+		return prependAttributeBefore(new XMLAttribute(name, value), relative);
+	}
+	
+	public XMLElement prependElement(XMLElement element) {
+		return insertElement(element, 0);
+	}
+	
+	public XMLElement prependElementBefore(XMLElement element, XMLElement relative) {
+		if (!this.elements.contains(relative))
+			throw new IllegalArgumentException("Relative element not found");
+		
+		return insertElement(element, this.elements.indexOf(relative));
+	}
+	
+	public XMLElement removeAttribute(String name) {
+		if (name == null || name.isEmpty())
+			throw new IllegalArgumentException("Name cannot be empty");
+		
+		if (!hasAttribute(name))
+			throw new IllegalArgumentException("No such attribute");
+		
+		this.attributes.remove(getAttribute(name));
+		return this;
+	}
+	
+	public XMLElement removeElement(XMLElement element) {
 		if (element == null)
-			return;
+			throw new IllegalArgumentException("Element cannot be null");
 		
-		element.setParent(null);
+		if (element.parent != this)
+			throw new IllegalArgumentException("No such element");
+		
+		element.parent = null;
+		this.elements.remove(element);
+		return this;
 	}
 	
-	public void setParent(XMLElement parent) {
-		if (this.parent == parent)
-			return;
-		
-		if (this.parent != null)
-			this.parent.elements.remove(this);
-		
-		this.parent = parent;
-		
-		if (this.parent != null)
-			this.parent.elements.add(this);
-	}
-	
-	public void setValue(String value) {
+	public XMLElement setValue(String value) {
 		this.value = (value != null) ? value : "";
+		return this;
+	}
+	
+	public static final class XMLAttribute {
+		
+		private final String name;
+		private final String value;
+		
+		public XMLAttribute(String name, String value) {
+			if (name == null || name.isEmpty())
+				throw new IllegalArgumentException("Name cannot be empty");
+			
+			if (value == null)
+				throw new IllegalArgumentException("Value cannot be null");
+			
+			this.name = name;
+			this.value = value;
+		}
+		
+		@Override
+		public boolean equals(Object object) {
+			return (object instanceof XMLAttribute) ? toString().equals(object.toString()) : false;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public String getValue() {
+			return value;
+		}
+		
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+		
+		@Override
+		public String toString() {
+			return name + "=" + value;
+		}
 	}
 }

@@ -19,7 +19,6 @@ package com.nodinchan.parser.xml;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 
 public final class XMLDocument extends XMLElement {
 	
@@ -54,18 +53,38 @@ public final class XMLDocument extends XMLElement {
 	
 	@Deprecated
 	@Override
-	public void addAttribute(String name, String value) {}
+	public XMLElement appendAttribute(XMLAttribute attribute) {
+		return this;
+	}
 	
 	@Deprecated
 	@Override
-	public String getAttribute(String name) {
+	public XMLElement appendAttribute(String name, String value) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement appendAttributeAfter(XMLAttribute attribute, String relative) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement appendAttributeAfter(String name, String value, String relative) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLAttribute getAttribute(String name) {
 		return null;
 	}
 	
 	@Deprecated
 	@Override
-	public List<Entry<String, String>> getAttributes() {
-		return new LinkedList<Entry<String, String>>();
+	public List<XMLAttribute> getAttributes() {
+		return new LinkedList<XMLAttribute>();
 	}
 	
 	public String getEncoding() {
@@ -98,19 +117,55 @@ public final class XMLDocument extends XMLElement {
 		return false;
 	}
 	
+	@Deprecated
+	@Override
+	public XMLElement insertAttribute(XMLAttribute attribute, int position) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement insertAttribute(String name, String value, int position) {
+		return this;
+	}
+	
 	public boolean isStandalone() {
 		return standalone;
 	}
 	
 	@Deprecated
 	@Override
-	public void removeAttribute(String name) {}
+	public XMLElement prependAttribute(XMLAttribute attribute) {
+		return this;
+	}
 	
 	@Deprecated
 	@Override
-	public void setParent(XMLElement parent) {}
+	public XMLElement prependAttribute(String name, String value) {
+		return this;
+	}
 	
 	@Deprecated
 	@Override
-	public void setValue(String value) {}
+	public XMLElement prependAttributeBefore(XMLAttribute attribute, String relative) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement prependAttributeBefore(String name, String value, String relative) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement removeAttribute(String name) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement setValue(String value) {
+		return this;
+	}
 }

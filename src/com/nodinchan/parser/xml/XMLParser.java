@@ -19,12 +19,13 @@ package com.nodinchan.parser.xml;
 
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.*;
+
+import com.nodinchan.parser.xml.XMLElement.XMLAttribute;
 
 public class XMLParser {
 	
@@ -64,8 +65,8 @@ public class XMLParser {
 			
 			xml.append("<" + element.getName());
 			
-			for (Entry<String, String> attribute : element.getAttributes())
-				xml.append(' ' + attribute.getKey() + "=\"" + attribute.getValue() + "\"");
+			for (XMLAttribute attribute : element.getAttributes())
+				xml.append(' ' + attribute.getName() + "=\"" + attribute.getValue() + "\"");
 			
 			xml.append(">" + ((!node) ? "\n" : ""));
 			
@@ -173,10 +174,10 @@ public class XMLParser {
 				
 				while (attributes.hasNext()) {
 					Attribute attribute = (Attribute) attributes.next();
-					element.addAttribute(attribute.getName().getLocalPart(), attribute.getValue());
+					element.appendAttribute(attribute.getName().getLocalPart(), attribute.getValue());
 				}
 				
-				parent.addElement(element);
+				parent.appendElement(element);
 				break;
 				
 			default:
