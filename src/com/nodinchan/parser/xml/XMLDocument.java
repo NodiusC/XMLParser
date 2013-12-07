@@ -17,6 +17,10 @@
 
 package com.nodinchan.parser.xml;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -161,6 +165,19 @@ public final class XMLDocument extends XMLElement {
 	@Override
 	public XMLElement removeAttribute(String name) {
 		return this;
+	}
+	
+	public void save(File file) throws IOException {
+		if (file == null)
+			throw new IllegalArgumentException("File cannot be null");
+		
+		if (!file.getName().endsWith(".xml"))
+			throw new IllegalArgumentException("File extension cannot be other than .xml");
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+		
+		writer.write(XMLParser.compose(this));
+		writer.close();
 	}
 	
 	@Deprecated
