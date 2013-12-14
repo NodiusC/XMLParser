@@ -21,7 +21,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 public final class XMLDocument extends XMLElement {
@@ -31,6 +30,7 @@ public final class XMLDocument extends XMLElement {
 	private final String systemId;
 	
 	private final boolean standalone;
+	
 	public XMLDocument(String encoding, String version, String systemId, boolean standalone) {
 		super("xml");
 		this.encoding = encoding;
@@ -82,17 +82,30 @@ public final class XMLDocument extends XMLElement {
 	@Deprecated
 	@Override
 	public XMLAttribute getAttribute(String name) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	
 	@Deprecated
 	@Override
 	public List<XMLAttribute> getAttributes() {
-		return new LinkedList<XMLAttribute>();
+		throw new UnsupportedOperationException();
 	}
 	
 	public String getEncoding() {
 		return encoding;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement getParent() {
+		throw new UnsupportedOperationException();
+	}
+	
+	public XMLElement getRoot() {
+		if (getElements().size() < 1)
+			throw new IllegalStateException();
+		
+		return getElements().get(0);
 	}
 	
 	public String getSystemId() {
@@ -101,14 +114,8 @@ public final class XMLDocument extends XMLElement {
 	
 	@Deprecated
 	@Override
-	public XMLElement getParent() {
-		return null;
-	}
-	
-	@Deprecated
-	@Override
 	public String getValue() {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	
 	public String getVersion() {

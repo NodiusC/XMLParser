@@ -144,8 +144,8 @@ public class XMLElement {
 	}
 	
 	public String getValue() {
-		if (!isNode())
-			return null;
+		if (elements.size() > 0)
+			throw new UnsupportedOperationException();
 		
 		return value;
 	}
@@ -156,6 +156,34 @@ public class XMLElement {
 		
 		for (XMLAttribute attribute : getAttributes()) {
 			if (!attribute.getName().equals(name))
+				continue;
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean hasElementWithName(String name) {
+		if (name == null || name.isEmpty())
+			throw new IllegalArgumentException("Name cannot be empty");
+		
+		for (XMLElement element : getElements()) {
+			if (!name.equals(element.getName()))
+				continue;
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean hasElementWithValue(String value) {
+		if (value == null)
+			throw new IllegalArgumentException("Value cannot be null");
+		
+		for (XMLElement element : getElements()) {
+			if (!value.equals(element.getValue()))
 				continue;
 			
 			return true;
@@ -194,10 +222,6 @@ public class XMLElement {
 		
 		this.elements.add(position, element);
 		return this;
-	}
-	
-	public boolean isNode() {
-		return this.elements.size() < 1;
 	}
 	
 	public XMLElement prependAttribute(XMLAttribute attribute) {
