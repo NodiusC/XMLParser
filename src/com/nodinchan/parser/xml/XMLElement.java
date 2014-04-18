@@ -38,7 +38,11 @@ public class XMLElement {
 	}
 	
 	public XMLElement appendAttribute(XMLAttribute attribute) {
-		return insertAttribute(attribute, this.attributes.size());
+		if (attribute == null)
+			throw new IllegalArgumentException("Attribute cannot be null");
+		
+		this.attributes.addLast(attribute);
+		return this;
 	}
 	
 	public XMLElement appendAttribute(String name, String value) {
@@ -57,7 +61,11 @@ public class XMLElement {
 	}
 	
 	public XMLElement appendElement(XMLElement element) {
-		return insertElement(element, this.elements.size());
+		if (element == null)
+			throw new IllegalArgumentException("Element cannot be null");
+		
+		this.elements.addLast(element);
+		return this;
 	}
 	
 	public XMLElement appendElementAfter(XMLElement element, XMLElement relative) {
@@ -144,10 +152,7 @@ public class XMLElement {
 	}
 	
 	public String getValue() {
-		if (elements.size() > 0)
-			throw new UnsupportedOperationException();
-		
-		return value;
+		return (elements.size() < 1) ? value : null;
 	}
 	
 	public boolean hasAttribute(String name) {
@@ -192,12 +197,16 @@ public class XMLElement {
 		return false;
 	}
 	
+	public boolean hasValue() {
+		return elements.size() < 1;
+	}
+	
 	public XMLElement insertAttribute(XMLAttribute attribute, int position) {
 		if (attribute == null)
 			throw new IllegalArgumentException("Attribute cannot be null");
 		
 		if (position < 0 || position > this.attributes.size())
-			throw new IllegalArgumentException("Position cannot be beyond 0 to " + this.attributes.size());
+			throw new IllegalArgumentException("Position cannot be beyond 0 to " + (this.attributes.size() - 1));
 		
 		this.attributes.add(position, attribute);
 		return this;
@@ -212,7 +221,7 @@ public class XMLElement {
 			throw new IllegalArgumentException("Element cannot be null");
 		
 		if (position < 0 || position > this.elements.size())
-			throw new IllegalArgumentException("Position cannot be beyond 0 to " + this.elements.size());
+			throw new IllegalArgumentException("Position cannot be beyond 0 to " + (this.elements.size() - 1));
 		
 		if (element.parent != null)
 			element.parent.elements.remove(element);
@@ -225,7 +234,11 @@ public class XMLElement {
 	}
 	
 	public XMLElement prependAttribute(XMLAttribute attribute) {
-		return insertAttribute(attribute, 0);
+		if (attribute == null)
+			throw new IllegalArgumentException("Attribute cannot be null");
+		
+		this.attributes.addFirst(attribute);
+		return this;
 	}
 	
 	public XMLElement prependAttribute(String name, String value) {
@@ -244,7 +257,11 @@ public class XMLElement {
 	}
 	
 	public XMLElement prependElement(XMLElement element) {
-		return insertElement(element, 0);
+		if (element == null)
+			throw new IllegalArgumentException("Element cannot be null");
+		
+		this.elements.addFirst(element);
+		return this;
 	}
 	
 	public XMLElement prependElementBefore(XMLElement element, XMLElement relative) {
@@ -277,6 +294,13 @@ public class XMLElement {
 		return this;
 	}
 	
+	public XMLElement removeElements() {
+		for (XMLElement element : getElements())
+			removeElement(element);
+		
+		return this;
+	}
+	
 	public XMLElement setValue(String value) {
 		this.value = (value != null) ? value : "";
 		return this;
@@ -300,7 +324,7 @@ public class XMLElement {
 		
 		@Override
 		public boolean equals(Object object) {
-			return (object instanceof XMLAttribute) ? toString().equals(object.toString()) : false;
+			return getClass().isInstance(object) && toString().equals(object.toString()); 
 		}
 		
 		public String getName() {

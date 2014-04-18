@@ -103,7 +103,7 @@ public final class XMLDocument extends XMLElement {
 	
 	public XMLElement getRoot() {
 		if (getElements().size() < 1)
-			throw new IllegalStateException();
+			throw new IllegalStateException("XMLDocument must have a root");
 		
 		return getElements().get(0);
 	}
