@@ -105,16 +105,13 @@ public class XMLElement {
 		return new LinkedList<XMLElement>(elements);
 	}
 	
-	public static List<XMLElement> getElements(XMLElement element, String name) {
-		if (element == null)
-			throw new IllegalArgumentException("Element cannot be null");
-		
+	public List<XMLElement> getElements(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name cannot be empty");
 		
 		List<XMLElement> elements = new LinkedList<XMLElement>();
 		
-		for (XMLElement e : element.getElements()) {
+		for (XMLElement e : getElements()) {
 			if (!name.equals(e.getName()))
 				continue;
 			
@@ -122,10 +119,6 @@ public class XMLElement {
 		}
 		
 		return elements;
-	}
-	
-	public List<XMLElement> getElements(String name) {
-		return getElements(this, name);
 	}
 	
 	public final String getName() {
