@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2013  Nodin Chan
+ *     Copyright (C) 2014  Nodin Chan
  *     
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -165,6 +165,12 @@ public final class XMLDocument extends XMLElement {
 	@Deprecated
 	@Override
 	public XMLElement prependAttributeBefore(String name, String value, String relative) {
+		return this;
+	}
+	
+	@Deprecated
+	@Override
+	public XMLElement remove() {
 		return this;
 	}
 	

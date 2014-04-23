@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2013  Nodin Chan
+ *     Copyright (C) 2014  Nodin Chan
  *     
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ public class XMLElement {
 	
 	public XMLElement(String name) {
 		this.name = name;
+		this.value = "";
 		this.attributes = new LinkedList<XMLAttribute>();
 		this.elements = new LinkedList<XMLElement>();
 	}
@@ -64,8 +65,7 @@ public class XMLElement {
 		if (element == null)
 			throw new IllegalArgumentException("Element cannot be null");
 		
-		this.elements.addLast(element);
-		return this;
+		return insertElement(element, this.elements.size());
 	}
 	
 	public XMLElement appendElementAfter(XMLElement element, XMLElement relative) {
@@ -73,6 +73,14 @@ public class XMLElement {
 			throw new IllegalArgumentException("Relative element not found");
 		
 		return insertElement(element, this.elements.indexOf(relative) + 1);
+	}
+	
+	public XMLElement clear() {
+		for (XMLElement element : getElements())
+			removeElement(element);
+		
+		setValue(null);
+		return this;
 	}
 	
 	public XMLAttribute getAttribute(String name) {
@@ -97,7 +105,7 @@ public class XMLElement {
 		return new LinkedList<XMLElement>(elements);
 	}
 	
-	public static List<XMLElement> getElementsByName(XMLElement element, String name) {
+	public static List<XMLElement> getElements(XMLElement element, String name) {
 		if (element == null)
 			throw new IllegalArgumentException("Element cannot be null");
 		
@@ -116,31 +124,8 @@ public class XMLElement {
 		return elements;
 	}
 	
-	public List<XMLElement> getElementsByName(String name) {
-		return getElementsByName(this, name);
-	}
-	
-	public static List<XMLElement> getElementsByValue(XMLElement element, String value) {
-		if (element == null)
-			throw new IllegalArgumentException("Element cannot be null");
-		
-		if (value == null)
-			throw new IllegalArgumentException("Value cannot be null");
-		
-		List<XMLElement> elements = new LinkedList<XMLElement>();
-		
-		for (XMLElement e : element.getElements()) {
-			if (!value.equals(e.getValue()))
-				continue;
-			
-			elements.add(e);
-		}
-		
-		return elements;
-	}
-	
-	public List<XMLElement> getElementsByValue(String value) {
-		return getElementsByValue(this, value);
+	public List<XMLElement> getElements(String name) {
+		return getElements(this, name);
 	}
 	
 	public final String getName() {
@@ -152,7 +137,7 @@ public class XMLElement {
 	}
 	
 	public String getValue() {
-		return (elements.size() < 1) ? value : null;
+		return (this.elements.size() < 1) ? value : null;
 	}
 	
 	public boolean hasAttribute(String name) {
@@ -169,7 +154,7 @@ public class XMLElement {
 		return false;
 	}
 	
-	public boolean hasElementWithName(String name) {
+	public boolean hasElement(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name cannot be empty");
 		
@@ -183,22 +168,8 @@ public class XMLElement {
 		return false;
 	}
 	
-	public boolean hasElementWithValue(String value) {
-		if (value == null)
-			throw new IllegalArgumentException("Value cannot be null");
-		
-		for (XMLElement element : getElements()) {
-			if (!value.equals(element.getValue()))
-				continue;
-			
-			return true;
-		}
-		
-		return false;
-	}
-	
 	public boolean hasValue() {
-		return elements.size() < 1;
+		return this.elements.size() < 1;
 	}
 	
 	public XMLElement insertAttribute(XMLAttribute attribute, int position) {
@@ -224,7 +195,7 @@ public class XMLElement {
 			throw new IllegalArgumentException("Position cannot be beyond 0 to " + (this.elements.size() - 1));
 		
 		if (element.parent != null)
-			element.parent.elements.remove(element);
+			element.parent.removeElement(element);
 		
 		if (element.parent != this)
 			element.parent = this;
@@ -260,8 +231,7 @@ public class XMLElement {
 		if (element == null)
 			throw new IllegalArgumentException("Element cannot be null");
 		
-		this.elements.addFirst(element);
-		return this;
+		return insertElement(element, 0);
 	}
 	
 	public XMLElement prependElementBefore(XMLElement element, XMLElement relative) {
@@ -269,6 +239,14 @@ public class XMLElement {
 			throw new IllegalArgumentException("Relative element not found");
 		
 		return insertElement(element, this.elements.indexOf(relative));
+	}
+	
+	public XMLElement remove() {
+		if (this.parent == null)
+			return this;
+		
+		this.parent.removeElement(this);
+		return this;
 	}
 	
 	public XMLElement removeAttribute(String name) {
@@ -291,13 +269,6 @@ public class XMLElement {
 		
 		element.parent = null;
 		this.elements.remove(element);
-		return this;
-	}
-	
-	public XMLElement removeElements() {
-		for (XMLElement element : getElements())
-			removeElement(element);
-		
 		return this;
 	}
 	

@@ -1,5 +1,5 @@
 /*
- *     Copyright (C) 2013  Nodin Chan
+ *     Copyright (C) 2014  Nodin Chan
  *     
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -50,37 +50,44 @@ public class XMLParser {
 	}
 	
 	private static void compose(StringBuilder xml, XMLElement parent, int layer) {
-		int type = -1;
+		XMLElement previous = null;
 		
 		for (XMLElement element : parent.getElements()) {
-			boolean node = element.getElements().size() < 1;
-			
-			if ((type == 0 && node) || (type == 1 && !node))
-				xml.append("\n");
-			
-			type = (node) ? 1 : 0;
+			if (previous != null && !previous.getName().equals(element.getName()))
+				xml.append('\n');
 			
 			for (int indent = 0; indent < layer; indent++)
 				xml.append("    ");
 			
-			xml.append("<" + element.getName());
+			xml.append('<').append(element.getName());
 			
-			for (XMLAttribute attribute : element.getAttributes())
-				xml.append(' ' + attribute.getName() + "=\"" + attribute.getValue() + "\"");
-			
-			xml.append(">" + ((!node) ? "\n" : ""));
-			
-			if (node)
-				xml.append((element.getValue() != null) ? element.getValue() : "");
-			else
-				compose(xml, element, layer + 1);
-			
-			if (!node) {
-				for (int indent = 0; indent < layer; indent++)
-					xml.append("    ");
+			for (XMLAttribute attribute : element.getAttributes()) {
+				xml.append(' ');
+				
+				xml.append(attribute.getName());
+				xml.append('=');
+				xml.append('"').append(attribute.getValue()).append('"');
 			}
 			
-			xml.append("</" + element.getName() + ">\n");
+			xml.append('>');
+			
+			if (element.getElements().size() > 0) {
+				xml.append('\n');
+				
+				compose(xml, element, ++layer);
+				
+				for (int indent = 0; indent < layer; indent++)
+					xml.append("    ");
+				
+			} else {
+				xml.append(element.getValue());
+			}
+			
+			xml.append("</").append(element.getName()).append('>');
+			
+			xml.append('\n');
+			
+			previous = element;
 		}
 	}
 	
