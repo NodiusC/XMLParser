@@ -57,12 +57,12 @@ public final class XMLElement extends XMLHierarchical {
 	
 	@Override
 	public XMLElement appendElement(XMLElement element) {
-		return removeValue().insertElement(element, getElementCount());
+		return insertElement(element, getElementCount());
 	}
 	
 	@Override
 	public XMLElement appendElementAfter(XMLElement element, XMLElement relative) {
-		return removeValue().insertElement(element, getElementIndex(relative) + 1);
+		return insertElement(element, getElementIndex(relative) + 1);
 	}
 	
 	public XMLAttribute getAttribute(String name) {
@@ -154,7 +154,7 @@ public final class XMLElement extends XMLHierarchical {
 	
 	@Override
 	public XMLElement insertElement(XMLElement element, int position) {
-		return getClass().cast(super.insertElement(element, position));
+		return removeValue().getClass().cast(super.insertElement(element, position));
 	}
 	
 	public XMLElement prependAttribute(XMLAttribute attribute) {
@@ -178,12 +178,12 @@ public final class XMLElement extends XMLHierarchical {
 	
 	@Override
 	public XMLElement prependElement(XMLElement element) {
-		return removeValue().insertElement(element, 0);
+		return insertElement(element, 0);
 	}
 	
 	@Override
 	public XMLElement prependElementBefore(XMLElement element, XMLElement relative) {
-		return removeValue().insertElement(element, getElementIndex(relative));
+		return insertElement(element, getElementIndex(relative));
 	}
 	
 	public XMLElement remove() {
@@ -226,7 +226,8 @@ public final class XMLElement extends XMLHierarchical {
 	}
 	
 	public XMLElement removeValue() {
-		return setValue(null);
+		this.value = "";
+		return this;
 	}
 	
 	public void setParent(XMLHierarchical parent) {
