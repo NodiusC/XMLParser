@@ -84,7 +84,8 @@ public final class XMLDocument extends XMLHierarchical {
 	
 	@Override
 	public XMLDocument insertElement(XMLElement element, int position) {
-		return getClass().cast(super.insertElement(element, position));
+		super.insertElement(element, position);
+		return this;
 	}
 	
 	public boolean isStandalone() {
@@ -103,12 +104,20 @@ public final class XMLDocument extends XMLHierarchical {
 	
 	@Override
 	public XMLDocument removeElement(XMLElement element) {
-		return getClass().cast(super.removeElement(element));
+		super.removeElement(element);
+		return this;
+	}
+	
+	@Override
+	public XMLDocument removeElement(int position) {
+		super.removeElement(position);
+		return this;
 	}
 	
 	@Override
 	public XMLDocument removeElements() {
-		return getClass().cast(super.removeElements());
+		super.removeElements();
+		return this;
 	}
 	
 	public void save(File file) throws IOException {
