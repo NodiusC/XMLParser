@@ -20,30 +20,24 @@ package com.nodinchan.parser.xml;
 import java.util.LinkedList;
 import java.util.List;
 
-public class XMLElement {
+public final class XMLElement extends XMLHierarchical {
 	
 	private final String name;
 	
 	private String value;
 	
-	private XMLElement parent;
+	private XMLHierarchical parent;
 	
-	private final LinkedList<XMLAttribute> attributes;
-	private final LinkedList<XMLElement> elements;
+	private final List<XMLAttribute> attributes;
 	
 	public XMLElement(String name) {
 		this.name = name;
 		this.value = "";
 		this.attributes = new LinkedList<XMLAttribute>();
-		this.elements = new LinkedList<XMLElement>();
 	}
 	
 	public XMLElement appendAttribute(XMLAttribute attribute) {
-		if (attribute == null)
-			throw new IllegalArgumentException("Attribute cannot be null");
-		
-		this.attributes.addLast(attribute);
-		return this;
+		return insertAttribute(attribute, this.attributes.size());
 	}
 	
 	public XMLElement appendAttribute(String name, String value) {
@@ -61,26 +55,14 @@ public class XMLElement {
 		return appendAttributeAfter(new XMLAttribute(name, value), relative);
 	}
 	
+	@Override
 	public XMLElement appendElement(XMLElement element) {
-		if (element == null)
-			throw new IllegalArgumentException("Element cannot be null");
-		
-		return insertElement(element, this.elements.size());
+		return removeValue().insertElement(element, getElementCount());
 	}
 	
+	@Override
 	public XMLElement appendElementAfter(XMLElement element, XMLElement relative) {
-		if (!this.elements.contains(relative))
-			throw new IllegalArgumentException("Relative element not found");
-		
-		return insertElement(element, this.elements.indexOf(relative) + 1);
-	}
-	
-	public XMLElement clear() {
-		for (XMLElement element : getElements())
-			removeElement(element);
-		
-		setValue(null);
-		return this;
+		return removeValue().insertElement(element, getElementIndex(relative) + 1);
 	}
 	
 	public XMLAttribute getAttribute(String name) {
@@ -97,40 +79,45 @@ public class XMLElement {
 		return null;
 	}
 	
+	public XMLAttribute getAttribute(int position) {
+		if (position < 0 || position > this.attributes.size())
+			throw new IndexOutOfBoundsException("Position cannot be beyond 0 to " + (this.attributes.size() - 1));
+		
+		return this.attributes.get(position);
+	}
+	
+	public int getAttributeCount() {
+		return this.attributes.size();
+	}
+	
+	public int getAttributeIndex(XMLAttribute attribute) {
+		if (attribute == null)
+			throw new IllegalArgumentException("Attribute cannot be null");
+		
+		return this.attributes.indexOf(attribute);
+	}
+	
 	public List<XMLAttribute> getAttributes() {
-		return new LinkedList<XMLAttribute>(attributes);
+		return new LinkedList<XMLAttribute>(this.attributes);
 	}
 	
-	public List<XMLElement> getElements() {
-		return new LinkedList<XMLElement>(elements);
+	public String getName() {
+		return this.name;
 	}
 	
-	public List<XMLElement> getElements(String name) {
-		if (name == null || name.isEmpty())
-			throw new IllegalArgumentException("Name cannot be empty");
-		
-		List<XMLElement> elements = new LinkedList<XMLElement>();
-		
-		for (XMLElement e : getElements()) {
-			if (!name.equals(e.getName()))
-				continue;
-			
-			elements.add(e);
-		}
-		
-		return elements;
-	}
-	
-	public final String getName() {
-		return name;
-	}
-	
-	public XMLElement getParent() {
-		return parent;
+	public XMLHierarchical getParent() {
+		return this.parent;
 	}
 	
 	public String getValue() {
-		return (this.elements.size() < 1) ? value : null;
+		return (getElementCount() < 1) ? value : null;
+	}
+	
+	public boolean hasAttribute(XMLAttribute attribute) {
+		if (attribute == null)
+			throw new IllegalArgumentException("Attribute cannot be null");
+		
+		return hasAttribute(attribute.getName());
 	}
 	
 	public boolean hasAttribute(String name) {
@@ -147,30 +134,15 @@ public class XMLElement {
 		return false;
 	}
 	
-	public boolean hasElement(String name) {
-		if (name == null || name.isEmpty())
-			throw new IllegalArgumentException("Name cannot be empty");
-		
-		for (XMLElement element : getElements()) {
-			if (!name.equals(element.getName()))
-				continue;
-			
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public boolean hasValue() {
-		return this.elements.size() < 1;
-	}
-	
 	public XMLElement insertAttribute(XMLAttribute attribute, int position) {
 		if (attribute == null)
 			throw new IllegalArgumentException("Attribute cannot be null");
 		
 		if (position < 0 || position > this.attributes.size())
-			throw new IllegalArgumentException("Position cannot be beyond 0 to " + (this.attributes.size() - 1));
+			throw new IndexOutOfBoundsException("Position cannot be beyond 0 to " + (this.attributes.size() - 1));
+		
+		if (hasAttribute(attribute))
+			removeAttribute(attribute.getName());
 		
 		this.attributes.add(position, attribute);
 		return this;
@@ -180,29 +152,13 @@ public class XMLElement {
 		return insertAttribute(new XMLAttribute(name, value), position);
 	}
 	
+	@Override
 	public XMLElement insertElement(XMLElement element, int position) {
-		if (element == null)
-			throw new IllegalArgumentException("Element cannot be null");
-		
-		if (position < 0 || position > this.elements.size())
-			throw new IllegalArgumentException("Position cannot be beyond 0 to " + (this.elements.size() - 1));
-		
-		if (element.parent != null)
-			element.parent.removeElement(element);
-		
-		if (element.parent != this)
-			element.parent = this;
-		
-		this.elements.add(position, element);
-		return this;
+		return getClass().cast(super.insertElement(element, position));
 	}
 	
 	public XMLElement prependAttribute(XMLAttribute attribute) {
-		if (attribute == null)
-			throw new IllegalArgumentException("Attribute cannot be null");
-		
-		this.attributes.addFirst(attribute);
-		return this;
+		return insertAttribute(attribute, 0);
 	}
 	
 	public XMLElement prependAttribute(String name, String value) {
@@ -220,25 +176,31 @@ public class XMLElement {
 		return prependAttributeBefore(new XMLAttribute(name, value), relative);
 	}
 	
+	@Override
 	public XMLElement prependElement(XMLElement element) {
-		if (element == null)
-			throw new IllegalArgumentException("Element cannot be null");
-		
-		return insertElement(element, 0);
+		return removeValue().insertElement(element, 0);
 	}
 	
+	@Override
 	public XMLElement prependElementBefore(XMLElement element, XMLElement relative) {
-		if (!this.elements.contains(relative))
-			throw new IllegalArgumentException("Relative element not found");
-		
-		return insertElement(element, this.elements.indexOf(relative));
+		return removeValue().insertElement(element, getElementIndex(relative));
 	}
 	
 	public XMLElement remove() {
-		if (this.parent == null)
-			return this;
+		if (this.parent != null)
+			this.parent.removeElement(this);
 		
-		this.parent.removeElement(this);
+		return this;
+	}
+	
+	public XMLElement removeAttribute(XMLAttribute attribute) {
+		if (attribute == null)
+			throw new IllegalArgumentException("Attribute cannot be null");
+		
+		if (!hasAttribute(attribute))
+			throw new IllegalArgumentException("No such attribute");
+		
+		this.attributes.remove(attribute);
 		return this;
 	}
 	
@@ -253,60 +215,34 @@ public class XMLElement {
 		return this;
 	}
 	
+	@Override
 	public XMLElement removeElement(XMLElement element) {
-		if (element == null)
-			throw new IllegalArgumentException("Element cannot be null");
+		return getClass().cast(super.removeElement(element));
+	}
+	
+	@Override
+	public XMLElement removeElements() {
+		return getClass().cast(super.removeElements());
+	}
+	
+	public XMLElement removeValue() {
+		return setValue(null);
+	}
+	
+	public void setParent(XMLHierarchical parent) {
+		if (this.parent == parent)
+			return;
 		
-		if (element.parent != this)
-			throw new IllegalArgumentException("No such element");
+		remove();
 		
-		element.parent = null;
-		this.elements.remove(element);
-		return this;
+		if (!parent.hasElement(this))
+			parent.appendElement(this);
+		
+		this.parent = parent;
 	}
 	
 	public XMLElement setValue(String value) {
 		this.value = (value != null) ? value : "";
-		return this;
-	}
-	
-	public static final class XMLAttribute {
-		
-		private final String name;
-		private final String value;
-		
-		public XMLAttribute(String name, String value) {
-			if (name == null || name.isEmpty())
-				throw new IllegalArgumentException("Name cannot be empty");
-			
-			if (value == null)
-				throw new IllegalArgumentException("Value cannot be null");
-			
-			this.name = name;
-			this.value = value;
-		}
-		
-		@Override
-		public boolean equals(Object object) {
-			return getClass().isInstance(object) && toString().equals(object.toString()); 
-		}
-		
-		public String getName() {
-			return name;
-		}
-		
-		public String getValue() {
-			return value;
-		}
-		
-		@Override
-		public int hashCode() {
-			return toString().hashCode();
-		}
-		
-		@Override
-		public String toString() {
-			return name + "=" + value;
-		}
+		return removeElements();
 	}
 }

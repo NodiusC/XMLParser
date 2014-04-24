@@ -25,8 +25,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.*;
 
-import com.nodinchan.parser.xml.XMLElement.XMLAttribute;
-
 public class XMLParser {
 	
 	public static String compose(XMLDocument document) {
@@ -40,16 +38,16 @@ public class XMLParser {
 		String standalone = (document.isStandalone()) ? "yes" : "no";
 		
 		xml.append("<?xml");
-		xml.append(" version=\"" + version + "\"");
-		xml.append(" encoding=\"" + encoding + "\"");
-		xml.append(" standalone=\"" + standalone + "\"");
-		xml.append("?>\n");
+		xml.append(' ').append("version").append("=").append('"').append(version).append('"');
+		xml.append(' ').append("encoding").append("=").append('"').append(encoding).append('"');
+		xml.append(' ').append("standalone").append("=").append('"').append(standalone).append('"');
+		xml.append("?>").append('\n');
 		
 		compose(xml, document, 0);
 		return xml.toString().trim();
 	}
 	
-	private static void compose(StringBuilder xml, XMLElement parent, int layer) {
+	private static void compose(StringBuilder xml, XMLHierarchical parent, int layer) {
 		XMLElement previous = null;
 		
 		for (XMLElement element : parent.getElements()) {
@@ -61,13 +59,8 @@ public class XMLParser {
 			
 			xml.append('<').append(element.getName());
 			
-			for (XMLAttribute attribute : element.getAttributes()) {
-				xml.append(' ');
-				
-				xml.append(attribute.getName());
-				xml.append('=');
-				xml.append('"').append(attribute.getValue()).append('"');
-			}
+			for (XMLAttribute attribute : element.getAttributes())
+				xml.append(' ').append(attribute.toString());
 			
 			xml.append('>');
 			
@@ -125,7 +118,7 @@ public class XMLParser {
 		return document;
 	}
 	
-	private static void parse(XMLElement parent, XMLEventReader reader) throws XMLStreamException {
+	private static void parse(XMLHierarchical parent, XMLEventReader reader) throws XMLStreamException {
 		XMLEvent previous = null;
 		XMLEvent event = null;
 		XMLEvent next = null;

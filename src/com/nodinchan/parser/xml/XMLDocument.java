@@ -21,9 +21,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
-public final class XMLDocument extends XMLElement {
+public final class XMLDocument extends XMLHierarchical {
 	
 	private final String encoding;
 	private final String version;
@@ -32,7 +31,6 @@ public final class XMLDocument extends XMLElement {
 	private final boolean standalone;
 	
 	public XMLDocument(String encoding, String version, String systemId, boolean standalone) {
-		super("xml");
 		this.encoding = encoding;
 		this.version = version;
 		this.systemId = systemId;
@@ -55,55 +53,23 @@ public final class XMLDocument extends XMLElement {
 		this("UTF-8", "1.0", "", false);
 	}
 	
-	@Deprecated
 	@Override
-	public XMLElement appendAttribute(XMLAttribute attribute) {
-		return this;
+	public XMLDocument appendElement(XMLElement element) {
+		return insertElement(element, getElementCount());
 	}
 	
-	@Deprecated
 	@Override
-	public XMLElement appendAttribute(String name, String value) {
-		return this;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement appendAttributeAfter(XMLAttribute attribute, String relative) {
-		return this;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement appendAttributeAfter(String name, String value, String relative) {
-		return this;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLAttribute getAttribute(String name) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Deprecated
-	@Override
-	public List<XMLAttribute> getAttributes() {
-		throw new UnsupportedOperationException();
+	public XMLDocument appendElementAfter(XMLElement element, XMLElement relative) {
+		return insertElement(element, getElementIndex(relative) + 1);
 	}
 	
 	public String getEncoding() {
 		return encoding;
 	}
 	
-	@Deprecated
-	@Override
-	public XMLElement getParent() {
-		throw new UnsupportedOperationException();
-	}
-	
 	public XMLElement getRoot() {
 		if (getElements().size() < 1)
-			throw new IllegalStateException("XMLDocument must have a root");
+			throw new IllegalStateException("Document must have a root");
 		
 		return getElements().get(0);
 	}
@@ -112,72 +78,37 @@ public final class XMLDocument extends XMLElement {
 		return systemId;
 	}
 	
-	@Deprecated
-	@Override
-	public String getValue() {
-		throw new UnsupportedOperationException();
-	}
-	
 	public String getVersion() {
 		return version;
 	}
 	
-	@Deprecated
 	@Override
-	public boolean hasAttribute(String name) {
-		return false;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement insertAttribute(XMLAttribute attribute, int position) {
-		return this;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement insertAttribute(String name, String value, int position) {
-		return this;
+	public XMLDocument insertElement(XMLElement element, int position) {
+		return getClass().cast(super.insertElement(element, position));
 	}
 	
 	public boolean isStandalone() {
 		return standalone;
 	}
 	
-	@Deprecated
 	@Override
-	public XMLElement prependAttribute(XMLAttribute attribute) {
-		return this;
+	public XMLDocument prependElement(XMLElement element) {
+		return insertElement(element, 0);
 	}
 	
-	@Deprecated
 	@Override
-	public XMLElement prependAttribute(String name, String value) {
-		return this;
+	public XMLDocument prependElementBefore(XMLElement element, XMLElement relative) {
+		return insertElement(element, getElementIndex(relative));
 	}
 	
-	@Deprecated
 	@Override
-	public XMLElement prependAttributeBefore(XMLAttribute attribute, String relative) {
-		return this;
+	public XMLDocument removeElement(XMLElement element) {
+		return getClass().cast(super.removeElement(element));
 	}
 	
-	@Deprecated
 	@Override
-	public XMLElement prependAttributeBefore(String name, String value, String relative) {
-		return this;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement remove() {
-		return this;
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement removeAttribute(String name) {
-		return this;
+	public XMLDocument removeElements() {
+		return getClass().cast(super.removeElements());
 	}
 	
 	public void save(File file) throws IOException {
@@ -191,11 +122,5 @@ public final class XMLDocument extends XMLElement {
 		
 		writer.write(XMLParser.compose(this));
 		writer.close();
-	}
-	
-	@Deprecated
-	@Override
-	public XMLElement setValue(String value) {
-		return this;
 	}
 }
