@@ -243,9 +243,7 @@ public final class XMLElement extends XMLHierarchical {
 		if (this.parent == parent)
 			return;
 		
-		remove();
-		
-		if (!parent.hasElement(this))
+		if (!parent.hasElement(remove()))
 			parent.appendElement(this);
 		
 		this.parent = parent;

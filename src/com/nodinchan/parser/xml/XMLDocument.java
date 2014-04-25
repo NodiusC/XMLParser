@@ -68,7 +68,7 @@ public final class XMLDocument extends XMLHierarchical {
 	}
 	
 	public XMLElement getRoot() {
-		if (getElements().size() < 1)
+		if (getElementCount() < 1)
 			throw new IllegalStateException("Document must have a root");
 		
 		return getElements().get(0);

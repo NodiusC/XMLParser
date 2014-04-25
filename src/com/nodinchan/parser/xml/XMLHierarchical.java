@@ -116,10 +116,9 @@ public abstract class XMLHierarchical {
 		if (position < 0 || position > this.elements.size())
 			throw new IndexOutOfBoundsException("Position cannot be beyond 0 to " + (this.elements.size() - 1));
 		
-		if (element.getParent() != this)
-			element.setParent(this);
-		
 		this.elements.add(position, element);
+		
+		element.setParent(this);
 		return this;
 	}
 	
@@ -141,9 +140,9 @@ public abstract class XMLHierarchical {
 		if (!hasElement(element))
 			throw new IllegalArgumentException("No such element");
 		
-		element.setParent(null);
-		
 		this.elements.remove(element);
+		
+		element.setParent(null);
 		return this;
 	}
 	
