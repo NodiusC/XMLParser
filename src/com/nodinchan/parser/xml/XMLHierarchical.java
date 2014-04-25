@@ -20,6 +20,11 @@ package com.nodinchan.parser.xml;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 
+ * @author NodinChan
+ *
+ */
 public abstract class XMLHierarchical {
 	
 	private final List<XMLElement> elements;
@@ -28,10 +33,26 @@ public abstract class XMLHierarchical {
 		this.elements = new LinkedList<XMLElement>();
 	}
 	
+	/**
+	 * Appends the {@link XMLElement} to the end
+	 * 
+	 * @param element The element to append
+	 * 
+	 * @return The parent of the element appended
+	 */
 	public XMLHierarchical appendElement(XMLElement element) {
 		return insertElement(element, getElementCount());
 	}
 	
+	/**
+	 * Appends the {@link XMLElement} after the given XMLElement
+	 * 
+	 * @param element The element to append
+	 * 
+	 * @param relative The relative element
+	 * 
+	 * @return The parent of the element appended
+	 */
 	public XMLHierarchical appendElementAfter(XMLElement element, XMLElement relative) {
 		if (!hasElement(relative))
 			throw new IllegalArgumentException("Relative element not found");
@@ -39,6 +60,13 @@ public abstract class XMLHierarchical {
 		return insertElement(element, getElementIndex(relative) + 1);
 	}
 	
+	/**
+	 * Returns the first {@link XMLElement} with the given name
+	 * 
+	 * @param name The element name
+	 * 
+	 * @return The element if found, otherwise null
+	 */
 	public XMLElement getElement(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name cannot be empty");
@@ -53,6 +81,13 @@ public abstract class XMLHierarchical {
 		return null;
 	}
 	
+	/**
+	 * Returns the {@link XMLElement} at the given position
+	 * 
+	 * @param position The position
+	 * 
+	 * @return The element found
+	 */
 	public XMLElement getElement(int position) {
 		if (position < 0 || position > this.elements.size())
 			throw new IndexOutOfBoundsException("Position cannot be beyond 0 to " + (this.elements.size() - 1));
@@ -60,10 +95,22 @@ public abstract class XMLHierarchical {
 		return this.elements.get(position);
 	}
 	
+	/**
+	 * Returns the number of {@link XMLElement}s
+	 * 
+	 * @return The element count
+	 */
 	public int getElementCount() {
 		return this.elements.size();
 	}
 	
+	/**
+	 * Returns the index of the given {@link XMLElement}
+	 * 
+	 * @param element The element to find
+	 * 
+	 * @return The index if found, otherwise -1
+	 */
 	public int getElementIndex(XMLElement element) {
 		if (element == null)
 			throw new IllegalArgumentException("Element cannot be null");
@@ -71,10 +118,22 @@ public abstract class XMLHierarchical {
 		return this.elements.indexOf(element);
 	}
 	
+	/**
+	 * Returns a list of {@link XMLElement}s
+	 * 
+	 * @return The copy of the list of elements
+	 */
 	public List<XMLElement> getElements() {
 		return new LinkedList<XMLElement>(this.elements);
 	}
 	
+	/**
+	 * Returns a list of {@link XMLElement}s with the given name
+	 * 
+	 * @param name The element name
+	 * 
+	 * @return The list of elements found
+	 */
 	public List<XMLElement> getElements(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name cannot be empty");
@@ -91,10 +150,24 @@ public abstract class XMLHierarchical {
 		return elements;
 	}
 	
+	/**
+	 * Determines whether the {@link XMLElement} is one of the children
+	 * 
+	 * @param element The element to determine
+	 * 
+	 * @return True if found, otherwise false
+	 */
 	public boolean hasElement(XMLElement element) {
 		return this.elements.contains(element);
 	}
 	
+	/**
+	 * Determines whether an {@link XMLElement} with the given name is one of the children
+	 * 
+	 * @param name The element name
+	 * 
+	 * @return True if found, otherwise false
+	 */
 	public boolean hasElement(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name cannot be empty");
@@ -109,6 +182,24 @@ public abstract class XMLHierarchical {
 		return false;
 	}
 	
+	/**
+	 * Indicates whether any {@link XMLElement}s are present
+	 * 
+	 * @return True if any is present, otherwise false
+	 */
+	public boolean hasElements() {
+		return !this.elements.isEmpty();
+	}
+	
+	/**
+	 * Inserts the {@link XMLElement} at the given position
+	 * 
+	 * @param element The element to insert
+	 * 
+	 * @param position The position
+	 * 
+	 * @return The parent of the element inserted
+	 */
 	public XMLHierarchical insertElement(XMLElement element, int position) {
 		if (element == null)
 			throw new IllegalArgumentException("Element cannot be null");
@@ -122,10 +213,26 @@ public abstract class XMLHierarchical {
 		return this;
 	}
 	
+	/**
+	 * Prepends the {@link XMLElement} to the start
+	 * 
+	 * @param element The element to prepend
+	 * 
+	 * @return The parent of the element prepended
+	 */
 	public XMLHierarchical prependElement(XMLElement element) {
 		return insertElement(element, 0);
 	}
 	
+	/**
+	 * Prepends the {@link XMLElement} before the given XMLElement
+	 * 
+	 * @param element The element to prepend
+	 * 
+	 * @param relative The relative element
+	 * 
+	 * @return The parent of the element prepended
+	 */
 	public XMLHierarchical prependElementBefore(XMLElement element, XMLElement relative) {
 		if (!hasElement(relative))
 			throw new IllegalArgumentException("Relative element not found");
@@ -133,6 +240,13 @@ public abstract class XMLHierarchical {
 		return insertElement(element, getElementIndex(relative));
 	}
 	
+	/**
+	 * Removes the {@link XMLElement}
+	 * 
+	 * @param element The element to remove
+	 * 
+	 * @return The parent that the element is removed from
+	 */
 	public XMLHierarchical removeElement(XMLElement element) {
 		if (element == null)
 			throw new IllegalArgumentException("Element cannot be null");
@@ -146,6 +260,13 @@ public abstract class XMLHierarchical {
 		return this;
 	}
 	
+	/**
+	 * Removes the {@link XMLElement} at the given position
+	 * 
+	 * @param position The position
+	 * 
+	 * @return The parent that the element is removed from
+	 */
 	public XMLHierarchical removeElement(int position) {
 		if (position < 0 || position > this.elements.size())
 			throw new IndexOutOfBoundsException("Position cannot be beyond 0 to " + (this.elements.size() - 1));
@@ -154,9 +275,14 @@ public abstract class XMLHierarchical {
 		return this;
 	}
 	
+	/**
+	 * Removes all existing {@link XMLElement}
+	 * 
+	 * @return The parent that the elements are removed from
+	 */
 	public XMLHierarchical removeElements() {
 		for (XMLElement element : getElements())
-			element.remove();
+			removeElement(element);
 		
 		return this;
 	}

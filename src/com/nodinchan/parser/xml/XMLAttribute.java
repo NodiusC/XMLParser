@@ -17,11 +17,25 @@
 
 package com.nodinchan.parser.xml;
 
+/**
+ * Represents an attribute in an XML document
+ * 
+ * @author NodinChan
+ *
+ */
 public final class XMLAttribute {
 	
 	private final String name;
-	private final String value;
 	
+	private String value;
+	
+	/**
+	 * Constructs an {@link XMLAttribute} with the given name and value
+	 * 
+	 * @param name The name of the attribute
+	 * 
+	 * @param value The value of the attribute
+	 */
 	public XMLAttribute(String name, String value) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name cannot be empty");
@@ -33,8 +47,17 @@ public final class XMLAttribute {
 		this.value = value;
 	}
 	
+	/**
+	 * Constructs an {@link XMLAttribute} with the given name
+	 * 
+	 * @param name The name of the attribute
+	 */
 	public XMLAttribute(String name) {
 		this(name, "");
+	}
+	
+	public XMLAttribute copy() {
+		return new XMLAttribute(name, value);
 	}
 	
 	@Override
@@ -42,10 +65,20 @@ public final class XMLAttribute {
 		return getClass().isInstance(object) && toString().equals(object.toString()); 
 	}
 	
+	/**
+	 * Returns the name of the {@link XMLAttribute}
+	 * 
+	 * @return The attribute name
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * Returns the value of the {@link XMLAttribute}
+	 * 
+	 * @return The attribute value
+	 */
 	public String getValue() {
 		return value;
 	}
@@ -53,6 +86,15 @@ public final class XMLAttribute {
 	@Override
 	public int hashCode() {
 		return toString().hashCode();
+	}
+	
+	/**
+	 * Sets the value of the {@link XMLAttribute}
+	 * 
+	 * @param value The new attribute value
+	 */
+	public void setValue(String value) {
+		this.value = (value != null) ? value : "";
 	}
 	
 	@Override

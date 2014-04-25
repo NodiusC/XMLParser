@@ -25,8 +25,21 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.*;
 
+/**
+ * The XML parser
+ * 
+ * @author NodinChan
+ *
+ */
 public class XMLParser {
 	
+	/**
+	 * Composes a String from {@link XMLDocument}
+	 * 
+	 * @param document The document to compose from
+	 * 
+	 * @return The composed string
+	 */
 	public static String compose(XMLDocument document) {
 		if (document == null)
 			throw new IllegalArgumentException();
@@ -84,6 +97,13 @@ public class XMLParser {
 		}
 	}
 	
+	/**
+	 * Parses an {@link XMLDocument} from an InputStream
+	 * 
+	 * @param stream The stream to parse from
+	 * 
+	 * @return The parsed document
+	 */
 	public static XMLDocument parse(InputStream stream) {
 		if (stream == null)
 			throw new IllegalArgumentException();
@@ -174,7 +194,7 @@ public class XMLParser {
 				
 				while (attributes.hasNext()) {
 					Attribute attribute = (Attribute) attributes.next();
-					element.appendAttribute(attribute.getName().getLocalPart(), attribute.getValue());
+					element.setAttribute(attribute.getName().getLocalPart(), attribute.getValue());
 				}
 				
 				parent.appendElement(element);

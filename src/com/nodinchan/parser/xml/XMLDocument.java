@@ -22,6 +22,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Represents an XML document
+ * 
+ * @author NodinChan
+ *
+ */
 public final class XMLDocument extends XMLHierarchical {
 	
 	private final String encoding;
@@ -30,6 +36,18 @@ public final class XMLDocument extends XMLHierarchical {
 	
 	private final boolean standalone;
 	
+	/**
+	 * Constructs an {@link XMLDocument} with the given encoding, version, system ID, and standalone value
+	 * 
+	 * @param encoding The encoding used for the XML document
+	 * 
+	 * @param version The version of the XML standard that the XML document conforms to
+	 *                
+	 * @param systemId The system ID of the XML document
+	 * 
+	 * @param standalone If the XML document has an internal DTD or is linked to an external DTD,
+	 *                   or any external entity references
+	 */
 	public XMLDocument(String encoding, String version, String systemId, boolean standalone) {
 		this.encoding = encoding;
 		this.version = version;
@@ -37,18 +55,42 @@ public final class XMLDocument extends XMLHierarchical {
 		this.standalone = standalone;
 	}
 	
+	/**
+	 * Constructs an {@link XMLDocument} with the given encoding, version, and system ID
+	 * 
+	 * @param encoding The encoding used for the XML document
+	 * 
+	 * @param version The version of the XML standard that the XML document conforms to
+	 *                
+	 * @param systemId The system ID of the XML document
+	 */
 	public XMLDocument(String encoding, String version, String systemId) {
 		this(encoding, version, systemId, false);
 	}
 	
+	/**
+	 * Constructs an {@link XMLDocument} with the given encoding and version
+	 * 
+	 * @param encoding The encoding used for the XML document
+	 * 
+	 * @param version The version of the XML standard that the XML document conforms to
+	 */
 	public XMLDocument(String encoding, String version) {
 		this(encoding, version, "", false);
 	}
 	
+	/**
+	 * Constructs an {@link XMLDocument} with the given encoding
+	 * 
+	 * @param encoding The encoding used for the XML document
+	 */
 	public XMLDocument(String encoding) {
 		this(encoding, "1.0", "", false);
 	}
 	
+	/**
+	 * Constructs an {@link XMLDocument}
+	 */
 	public XMLDocument() {
 		this("UTF-8", "1.0", "", false);
 	}
@@ -63,10 +105,20 @@ public final class XMLDocument extends XMLHierarchical {
 		return insertElement(element, getElementIndex(relative) + 1);
 	}
 	
+	/**
+	 * Returns the encoding used for the XML document
+	 * 
+	 * @return The encoding
+	 */
 	public String getEncoding() {
 		return encoding;
 	}
 	
+	/**
+	 * Returns the root {@link XMLElement} of of the XML document
+	 * 
+	 * @return The root element
+	 */
 	public XMLElement getRoot() {
 		if (getElementCount() < 1)
 			throw new IllegalStateException("Document must have a root");
@@ -74,10 +126,20 @@ public final class XMLDocument extends XMLHierarchical {
 		return getElements().get(0);
 	}
 	
+	/**
+	 * Returns the system ID of the XML document
+	 * 
+	 * @return The system ID
+	 */
 	public String getSystemId() {
 		return systemId;
 	}
 	
+	/**
+	 * Returns the version of the XML standard that the XML document conforms to
+	 * 
+	 * @return The XML standard version
+	 */
 	public String getVersion() {
 		return version;
 	}
@@ -88,6 +150,12 @@ public final class XMLDocument extends XMLHierarchical {
 		return this;
 	}
 	
+	/**
+	 * Returns whether the XML document has an internal DTD or is linked to an external DTD,
+	 * or any external entity references
+	 * 
+	 * @return True if the XML document has an internal DTD, otherwise false
+	 */
 	public boolean isStandalone() {
 		return standalone;
 	}
@@ -120,6 +188,13 @@ public final class XMLDocument extends XMLHierarchical {
 		return this;
 	}
 	
+	/**
+	 * Saves the {@link XMLDocument} to the given XML file
+	 * 
+	 * @param file The XML file to save to
+	 * 
+	 * @throws IOException
+	 */
 	public void save(File file) throws IOException {
 		if (file == null)
 			throw new IllegalArgumentException("File cannot be null");
