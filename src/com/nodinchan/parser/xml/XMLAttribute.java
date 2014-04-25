@@ -33,6 +33,10 @@ public final class XMLAttribute {
 		this.value = value;
 	}
 	
+	public XMLAttribute(String name) {
+		this(name, "");
+	}
+	
 	@Override
 	public boolean equals(Object object) {
 		return getClass().isInstance(object) && toString().equals(object.toString()); 
