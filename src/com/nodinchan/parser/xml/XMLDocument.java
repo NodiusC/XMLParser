@@ -95,14 +95,30 @@ public final class XMLDocument extends XMLHierarchical {
 		this("UTF-8", "1.0", "", false);
 	}
 	
+	/**
+	 * Sets the {@link XMLElement} as the root of the {@link XMLDocument}
+	 * 
+	 * @param element The root element
+	 * 
+	 * @return The document
+	 */
 	@Override
 	public XMLDocument appendElement(XMLElement element) {
-		return insertElement(element, getElementCount());
+		return setRoot(element);
 	}
 	
+	/**
+	 * Sets the {@link XMLElement} as the root of the {@link XMLDocument}
+	 * 
+	 * @param element The root element
+	 * 
+	 * @param relative Unused
+	 * 
+	 * @return The document
+	 */
 	@Override
 	public XMLDocument appendElementAfter(XMLElement element, XMLElement relative) {
-		return insertElement(element, getElementIndex(relative) + 1);
+		return setRoot(element);
 	}
 	
 	/**
@@ -144,10 +160,18 @@ public final class XMLDocument extends XMLHierarchical {
 		return version;
 	}
 	
+	/**
+	 * Sets the {@link XMLElement} as the root of the {@link XMLDocument}
+	 * 
+	 * @param element The root element
+	 * 
+	 * @param position Unused
+	 * 
+	 * @return The document
+	 */
 	@Override
 	public XMLDocument insertElement(XMLElement element, int position) {
-		super.insertElement(element, position);
-		return this;
+		return setRoot(element);
 	}
 	
 	/**
@@ -160,14 +184,30 @@ public final class XMLDocument extends XMLHierarchical {
 		return standalone;
 	}
 	
+	/**
+	 * Sets the {@link XMLElement} as the root of the {@link XMLDocument}
+	 * 
+	 * @param element The root element
+	 * 
+	 * @return The document
+	 */
 	@Override
 	public XMLDocument prependElement(XMLElement element) {
-		return insertElement(element, 0);
+		return setRoot(element);
 	}
 	
+	/**
+	 * Sets the {@link XMLElement} as the root of the {@link XMLDocument}
+	 * 
+	 * @param element The root element
+	 * 
+	 * @param relative Unused
+	 * 
+	 * @return The document
+	 */
 	@Override
 	public XMLDocument prependElementBefore(XMLElement element, XMLElement relative) {
-		return insertElement(element, getElementIndex(relative));
+		return setRoot(element);
 	}
 	
 	@Override
@@ -206,5 +246,22 @@ public final class XMLDocument extends XMLHierarchical {
 		
 		writer.write(XMLParser.compose(this));
 		writer.close();
+	}
+	
+	/**
+	 * Sets the {@link XMLElement} as the root of the {@link XMLDocument}
+	 * 
+	 * @param element The root element
+	 * 
+	 * @return The document
+	 */
+	public XMLDocument setRoot(XMLElement element) {
+		if (element == null)
+			throw new IllegalArgumentException("Root cannot be null");
+		
+		removeElements();
+		
+		super.insertElement(element, 0);
+		return this;
 	}
 }
